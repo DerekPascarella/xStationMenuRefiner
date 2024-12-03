@@ -5,7 +5,7 @@ The xStation uses the first data track of a disc image (minus its file extension
 
 Pointing this utility as an xStation-formatted SD card will automatically perform all of the file renaming, as well as CUE modification. The only pre-requisite is to first manually rename each game's folder to that which should be displayed in xStation's menu.
 
-![#f03c15](https://via.placeholder.com/15/f03c15/f03c15.png) **IMPORTANT:** *Please do not run this program against your daily-use xStation SD card. Instead, use a copy or backup until you're sure it works with your disc image collection.*
+![#f03c15](https://i.imgur.com/XsUAGA0.png) **IMPORTANT:** *Please do not run this program against your daily-use xStation SD card. Instead, use a copy or backup until you're sure it works with your disc image collection.*
 
 ## Current Version
 xStation Image Renamer is currently at version [1.2](https://github.com/DerekPascarella/xStation-Image-Renamer/raw/main/xstation_renamer.exe).
