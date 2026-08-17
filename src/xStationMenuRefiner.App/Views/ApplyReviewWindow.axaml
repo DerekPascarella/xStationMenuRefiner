@@ -1,0 +1,116 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="xStationMenuRefiner.App.Views.ApplyReviewWindow"
+        Title="Review Changes" Width="800" Height="600"
+        MinWidth="640" MinHeight="420"
+        WindowStartupLocation="CenterOwner"
+        Icon="avares://xStationMenuRefiner/Assets/xstation_icon.ico">
+
+    <DockPanel LastChildFill="True">
+
+        <Border DockPanel.Dock="Top" Background="{StaticResource PanelBackground}"
+                BorderBrush="{StaticResource HairLine}" BorderThickness="0,0,0,1" Padding="14,10">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="2">
+                    <TextBlock x:Name="HeaderText" FontWeight="SemiBold" FontSize="14"/>
+                    <TextBlock x:Name="SubHeaderText" Classes="muted" FontSize="12"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" x:Name="SelectionButtons" Orientation="Horizontal"
+                            Spacing="8" Margin="12,0,0,0" VerticalAlignment="Center">
+                    <Button Content="Select All" Click="SelectAllButton_Click"
+                            ToolTip.Tip="Check every change that can run"/>
+                    <Button Content="Clear All" Click="ClearAllButton_Click"
+                            ToolTip.Tip="Uncheck every change"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource PanelBackground}"
+                BorderBrush="{StaticResource HairLine}" BorderThickness="0,1,0,0" Padding="14,10">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <Button Grid.Column="1" x:Name="CancelButton" Content="Cancel"
+                        Margin="0,0,8,0" Click="CancelButton_Click"
+                        ToolTip.Tip="Close without writing anything"/>
+                <Button Grid.Column="2" x:Name="ApplyButton" Content="Apply"
+                        Click="ApplyButton_Click"
+                        ToolTip.Tip="Write these changes to the card"/>
+            </Grid>
+        </Border>
+
+        <Grid>
+            <ScrollViewer x:Name="ReviewPanel" AllowAutoHide="False" HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl x:Name="ChangeList" Margin="12">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="0,0,0,8" Padding="10,8" CornerRadius="5"
+                                    BorderBrush="{StaticResource HairLine}" BorderThickness="1"
+                                    Background="White">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <CheckBox Grid.Column="0" MinWidth="0" MinHeight="0"
+                                              Margin="0,1,8,0" VerticalAlignment="Top"
+                                              IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                              IsEnabled="{Binding CanSelect}"/>
+
+                                    <StackPanel Grid.Column="1" Spacing="4">
+                                        <TextBlock Text="{Binding Header}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding FolderPath}" Classes="muted" FontSize="11"
+                                                   TextTrimming="CharacterEllipsis"/>
+
+                                        <ItemsControl ItemsSource="{Binding Operations}" Margin="0,4,0,0">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}" FontFamily="Consolas,Menlo,monospace"
+                                                               FontSize="11" TextWrapping="Wrap" Margin="0,1"/>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <Border IsVisible="{Binding HasProblem}" Background="#FDECEF"
+                                                CornerRadius="4" Padding="8,5" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding Problems}" TextWrapping="Wrap" FontSize="11"
+                                                       Foreground="{StaticResource BrandRed}"/>
+                                        </Border>
+
+                                        <Border IsVisible="{Binding HasWarning}" Background="#FFF7E0"
+                                                CornerRadius="4" Padding="8,5" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding Warnings}" TextWrapping="Wrap" FontSize="11"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <StackPanel x:Name="ProgressPanel" IsVisible="False" VerticalAlignment="Center"
+                        Margin="40" Spacing="12">
+                <TextBlock x:Name="ProgressLabel" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                <ProgressBar x:Name="ProgressBarControl" Height="6" Minimum="0" Maximum="100"/>
+                <TextBlock x:Name="ProgressCount" Classes="muted" HorizontalAlignment="Center" FontSize="12"/>
+            </StackPanel>
+
+            <ScrollViewer x:Name="ResultPanel" IsVisible="False"
+                          AllowAutoHide="False" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Margin="14" Spacing="10">
+                    <TextBlock x:Name="ResultHeader" FontWeight="SemiBold" FontSize="14"/>
+                    <ItemsControl x:Name="ResultList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,0,0,6" Padding="10,7" CornerRadius="5"
+                                        BorderBrush="{StaticResource HairLine}" BorderThickness="1"
+                                        Background="White">
+                                    <StackPanel Spacing="3">
+                                        <TextBlock Text="{Binding Header}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding Detail}" TextWrapping="Wrap" FontSize="12"
+                                                   Foreground="{StaticResource BrandRed}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </DockPanel>
+</Window>

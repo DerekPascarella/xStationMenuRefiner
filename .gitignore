@@ -1,0 +1,11 @@
+bin/
+obj/
+_releases/
+*.user
+.vs/
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db

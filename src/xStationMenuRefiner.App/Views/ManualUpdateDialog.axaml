@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="xStationMenuRefiner.App.Views.ManualUpdateDialog"
+        Title="Manual Update Required" Width="470" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Icon="avares://xStationMenuRefiner/Assets/xstation_icon.ico">
+    <Grid RowDefinitions="Auto,Auto" Margin="16,14">
+        <StackPanel Grid.Row="0">
+            <TextBlock x:Name="ReasonText" TextWrapping="Wrap"/>
+
+            <TextBlock Margin="0,10,0,0" TextWrapping="Wrap"
+                       Text="To upgrade, download the release package from the GitHub repository:"/>
+
+            <TextBlock Margin="0,4,0,0" Foreground="#326DB3" TextDecorations="Underline"
+                       Cursor="Hand" TextWrapping="Wrap"
+                       ToolTip.Tip="Open the releases page in your browser"
+                       PointerPressed="ReleasesLink_PointerPressed"
+                       Text="https://github.com/DerekPascarella/xStationMenuRefiner/releases"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" Margin="0,16,0,0">
+            <Button Grid.Column="0" Content="Skip This Version" Click="SkipButton_Click"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    Margin="0,0,4,0"
+                    ToolTip.Tip="Stop notifying me about this version"/>
+            <Button Grid.Column="1" Content="OK" Click="OkButton_Click"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    Margin="4,0,0,0" IsDefault="True"
+                    ToolTip.Tip="Close this dialog"/>
+        </Grid>
+    </Grid>
+</Window>

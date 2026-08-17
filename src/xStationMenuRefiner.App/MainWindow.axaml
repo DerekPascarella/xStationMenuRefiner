@@ -1,0 +1,328 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="xStationMenuRefiner.App.MainWindow"
+        Title="xStation Menu Refiner"
+        Width="1120" Height="720"
+        MinWidth="980" MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        Icon="avares://xStationMenuRefiner/Assets/xstation_icon.ico">
+
+    <Window.Styles>
+        <Style Selector="TextBlock.rowLabel">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <!-- Without a height of its own the theme minimum overflows the 26 pixel row. -->
+        <Style Selector="TextBox.rowEditor">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Height" Value="23"/>
+            <Setter Property="Padding" Value="5,0"/>
+            <Setter Property="Margin" Value="-6,0,6,0"/>
+        </Style>
+        <!-- A staged row is marked by the bar at its left edge, so the label keeps its
+             normal color and only gains weight. -->
+        <Style Selector="TextBlock.rowLabel.modified">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style Selector="TextBlock.about-link">
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="TextBlock.about-link:pointerover">
+            <Setter Property="Foreground" Value="{StaticResource BrandBlue}"/>
+            <Setter Property="TextDecorations" Value="Underline"/>
+        </Style>
+    </Window.Styles>
+
+    <DockPanel LastChildFill="True">
+
+        <!-- Toolbar -->
+        <Border DockPanel.Dock="Top" Background="{StaticResource PanelBackground}"
+                BorderBrush="{StaticResource HairLine}" BorderThickness="0,0,0,1" Padding="10,8">
+            <!-- The card dropdown takes the flexible column, so the buttons keep their
+                 full width however long the issue counts get. -->
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto,Auto">
+
+                <Image Grid.Column="0" Width="56" Stretch="Uniform" Margin="2,0,12,0"
+                       VerticalAlignment="Center"
+                       RenderOptions.BitmapInterpolationMode="HighQuality"
+                       Source="avares://xStationMenuRefiner/Assets/xstation_mark.png"/>
+
+                <!-- No minimum, so a long issue count squeezes the dropdown rather than
+                     pushing it over the buttons beside it. -->
+                <ComboBox Grid.Column="1" x:Name="CardCombo" MinWidth="0"
+                          HorizontalAlignment="Stretch" Margin="0,0,6,0"
+                          PlaceholderText="No card detected"
+                          SelectionChanged="CardCombo_SelectionChanged"
+                          DropDownOpened="CardCombo_DropDownOpened"
+                          ToolTip.Tip="Pick a detected SD card, or a folder opened earlier. Opening this list looks for cards connected since launch."/>
+
+                <Button Grid.Column="2" x:Name="BrowseButton" Margin="6,0,0,0"
+                        Content="Browse…" Click="BrowseButton_Click"
+                        ToolTip.Tip="Open any folder and treat it as an xStation card"/>
+
+                <Button Grid.Column="3" x:Name="RescanButton" Margin="6,0,0,0"
+                        Content="Rescan" Click="RescanButton_Click"
+                        ToolTip.Tip="Look for newly connected cards, then read the selected one again"/>
+
+                <TextBox Grid.Column="4" x:Name="SearchBox" Width="200" Margin="12,0"
+                         Watermark="Search"
+                         TextChanged="SearchBox_TextChanged"
+                         ToolTip.Tip="Filter the list by menu label"/>
+
+                <Button Grid.Column="5" x:Name="ToolsButton" Content="Tools ▾"
+                        ToolTip.Tip="Bulk naming tools and options">
+                    <Button.Flyout>
+                        <MenuFlyout>
+                            <MenuItem Header="Repair All Fixable Issues…" Click="RepairAllIssues_Click"
+                                      ToolTip.Tip="Queue every repair the card needs, across every folder"/>
+                            <MenuItem Header="New Folder at Card Root…" Click="NewFolderAtRoot_Click"
+                                      ToolTip.Tip="Add an empty folder beside the games at the top level"/>
+                            <Separator/>
+                            <MenuItem Header="Expand All" Click="ExpandAll_Click"
+                                      ToolTip.Tip="Open every folder row in the list"/>
+                            <MenuItem Header="Collapse All" Click="CollapseAll_Click"
+                                      ToolTip.Tip="Close every folder row in the list"/>
+                            <Separator/>
+                            <MenuItem x:Name="OptionRenameFolder" Header="Rename Folder with Label"
+                                      ToggleType="CheckBox" Click="OptionRenameFolder_Click"
+                                      ToolTip.Tip="Keep each game folder named the same as its menu label"/>
+                            <MenuItem x:Name="OptionPad" Header="Pad Track Numbers to Two Digits"
+                                      ToggleType="CheckBox" Click="OptionPad_Click"
+                                      ToolTip.Tip="Write (Track 01) instead of (Track 1)"/>
+                            <MenuItem x:Name="OptionCheckUpdates" Header="Check for Updates at Startup"
+                                      ToggleType="CheckBox" Click="OptionCheckUpdates_Click"
+                                      ToolTip.Tip="Look for a newer release each time the application opens"/>
+                            <Separator/>
+                            <MenuItem Header="Open Card Folder" Click="OpenCardFolder_Click"
+                                      ToolTip.Tip="Show the card in the system file browser"/>
+                            <MenuItem Header="About" Click="About_Click"
+                                      ToolTip.Tip="Version, credits, and a manual update check"/>
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+
+                <Button Grid.Column="6" x:Name="IssuesButton" Margin="6,0,0,0"
+                        Content="Issues" Click="IssuesButton_Click"
+                        ToolTip.Tip="Show everything on the card that needs attention"/>
+            </Grid>
+        </Border>
+
+        <!-- Status bar -->
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource PanelBackground}"
+                BorderBrush="{StaticResource HairLine}" BorderThickness="0,1,0,0" Padding="12,7">
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+                <TextBlock Grid.Column="0" x:Name="SummaryText" Classes="muted" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" x:Name="PendingText" Margin="16,0" VerticalAlignment="Center"
+                           Foreground="{StaticResource StagedGreen}" FontWeight="SemiBold"/>
+                <ComboBox Grid.Column="2" x:Name="MenuModeBox" MinWidth="230" Margin="0,0,12,0"
+                          VerticalAlignment="Center"
+                          SelectionChanged="MenuModeBox_SelectionChanged"
+                          ToolTip.Tip="Which menu the card is set to draw, read from 00xstation/config.txt">
+                    <ComboBoxItem Content="Flat list (Folder Browsing off)"/>
+                    <ComboBoxItem Content="Folders (Folder Browsing on)"/>
+                </ComboBox>
+
+                <Button Grid.Column="3" x:Name="DiscardButton" Content="Discard All" Margin="0,0,8,0"
+                        IsEnabled="False" Click="DiscardButton_Click"
+                        ToolTip.Tip="Throw away every pending change on every entry"/>
+                <Button Grid.Column="4" x:Name="ApplyButton" Content="Apply Changes"
+                        IsEnabled="False" Click="ApplyButton_Click"
+                        ToolTip.Tip="Review every rename, then write them to the card"/>
+            </Grid>
+        </Border>
+
+        <!-- Tree and details -->
+        <Grid ColumnDefinitions="*,4,340">
+
+            <TreeView Grid.Column="0" x:Name="Tree" Padding="6"
+                      SelectionChanged="Tree_SelectionChanged"
+                      BorderThickness="0"
+                      ScrollViewer.AllowAutoHide="False"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <TreeView.Styles>
+                    <Style Selector="TreeViewItem">
+                        <Setter Property="IsVisible" Value="{Binding IsVisible}"/>
+                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                    </Style>
+                </TreeView.Styles>
+                <TreeView.ItemTemplate>
+                    <TreeDataTemplate ItemsSource="{Binding Children}">
+                        <Grid ColumnDefinitions="8,Auto,*,Auto,Auto" Height="26"
+                              Background="Transparent"
+                              DoubleTapped="Row_DoubleTapped"
+                              PointerPressed="Row_PointerPressed"
+                              PointerMoved="Row_PointerMoved"
+                              DragDrop.AllowDrop="True"
+                              DragDrop.DragOver="Row_DragOver"
+                              DragDrop.Drop="Row_Drop"
+                              ToolTip.Tip="{Binding RowTip}">
+
+                            <Grid.ContextFlyout>
+                                <MenuFlyout>
+                                    <MenuItem Header="New Folder Inside…" Click="NewFolderInside_Click"
+                                              IsVisible="{Binding IsRealFolder}"
+                                              ToolTip.Tip="Make an empty folder in this one. It is created right away, so Move To can use it"/>
+                                    <MenuItem Header="Move To…" Click="MoveEntry_Click"
+                                              IsVisible="{Binding CanMove}"
+                                              ToolTip.Tip="Pick another folder on the card to hold this. The move waits for Apply Changes"/>
+                                    <MenuItem Header="Wrap in Folder" Click="WrapEntry_Click"
+                                              IsVisible="{Binding CanWrap}"
+                                              ToolTip.Tip="Make a folder named after this game and move its files inside, so browsing shows one folder row"/>
+                                    <MenuItem Header="Unwrap Folder" Click="UnwrapEntry_Click"
+                                              IsVisible="{Binding CanUnwrap}"
+                                              ToolTip.Tip="Move this game's files up one level and remove the emptied folder, so browsing shows the game row directly"/>
+                                    <MenuItem Header="Shorten Menu Entry" Click="ShortenEntry_Click"
+                                              IsVisible="{Binding CanShorten}"
+                                              ToolTip.Tip="Drop the (Track 01) marker so this row reads Game.bin"/>
+                                    <Separator IsVisible="{Binding IsRealFolder}"/>
+                                    <MenuItem Header="Delete Folder" Click="DeleteFolder_Click"
+                                              IsVisible="{Binding IsRealFolder}"
+                                              ToolTip.Tip="Delete this folder right away. Refused unless it is empty"/>
+                                </MenuFlyout>
+                            </Grid.ContextFlyout>
+
+                            <!-- The column holds its width whether or not the bar is
+                                 drawn, so staging a row never shifts the one below it. -->
+                            <Border Grid.Column="0" Width="3" CornerRadius="1.5"
+                                    HorizontalAlignment="Left" Margin="0,3"
+                                    Background="{StaticResource StagedGreen}"
+                                    IsVisible="{Binding ShowsPending}"
+                                    ToolTip.Tip="Staged, not yet written to the card"/>
+
+                            <Path Grid.Column="1" Width="15" Height="15" Stretch="Uniform"
+                                  VerticalAlignment="Center" Margin="0,0,9,0"
+                                  Fill="#E0A93B" Data="{StaticResource FolderGlyph}"
+                                  IsVisible="{Binding IsFolder}"/>
+
+                            <Path Grid.Column="1" Width="14" Height="14" Stretch="Uniform"
+                                  VerticalAlignment="Center" Margin="0,0,9,0"
+                                  Fill="#326DB3" Data="{StaticResource DiscGlyph}"
+                                  IsVisible="{Binding IsGame}"/>
+
+                            <Panel Grid.Column="2">
+                                <!-- The exact text xStation will draw, trim and all. -->
+                                <TextBlock Classes="rowLabel"
+                                           Classes.modified="{Binding ShowsPending}"
+                                           Text="{Binding MenuPreview}"
+                                           IsVisible="{Binding IsNotEditing}"
+                                           TextTrimming="CharacterEllipsis"/>
+                                <TextBox Classes="rowEditor"
+                                         Text="{Binding Label, Mode=TwoWay}"
+                                         IsVisible="{Binding IsEditing}"
+                                         AttachedToVisualTree="EditBox_Attached"
+                                         KeyDown="EditBox_KeyDown"
+                                         LostFocus="EditBox_LostFocus"/>
+                            </Panel>
+
+                            <TextBlock Grid.Column="3" Classes="muted" Text="{Binding Detail}"
+                                       VerticalAlignment="Center" Margin="14,0,0,0" FontSize="12"
+                                       IsVisible="{Binding IsNotEditing}"/>
+
+                            <Ellipse Grid.Column="4" Width="8" Height="8" Margin="10,0,4,0"
+                                     VerticalAlignment="Center"
+                                     Fill="{StaticResource BrandRed}"
+                                     IsVisible="{Binding HasError}"
+                                     ToolTip.Tip="{Binding StatusTip}"/>
+
+                            <Ellipse Grid.Column="4" Width="8" Height="8" Margin="10,0,4,0"
+                                     VerticalAlignment="Center"
+                                     Fill="{StaticResource BrandAmber}"
+                                     IsVisible="{Binding HasWarning}"
+                                     ToolTip.Tip="{Binding StatusTip}"/>
+                        </Grid>
+                    </TreeDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+
+            <GridSplitter Grid.Column="1" Background="{StaticResource HairLine}" ResizeDirection="Columns"/>
+
+            <Border Grid.Column="2" Background="{StaticResource PanelBackground}"
+                    BorderBrush="{StaticResource HairLine}" BorderThickness="1,0,0,0">
+                <ScrollViewer AllowAutoHide="False" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="14,12" Spacing="4">
+
+                        <TextBlock x:Name="EmptyDetail" Classes="muted" TextWrapping="Wrap"
+                                   Text="Select an entry to see what xStation will show and to change it."/>
+
+                        <StackPanel x:Name="DetailPanel" IsVisible="False" Spacing="4">
+
+                            <TextBlock Classes="sectionHeader" Text="MENU LABEL"/>
+                            <TextBox x:Name="LabelEditor" KeyDown="LabelEditor_KeyDown"
+                                     TextChanged="LabelEditor_TextChanged"
+                                     ToolTip.Tip="The text xStation puts on screen. Press Enter to stage the change."/>
+                            <TextBlock x:Name="LabelHint" Classes="muted" FontSize="11" TextWrapping="Wrap"/>
+
+                            <Grid ColumnDefinitions="*,*" Margin="0,6,0,0">
+                                <Button Grid.Column="0" x:Name="StageButton" Content="Stage Change"
+                                        HorizontalAlignment="Stretch" Margin="0,0,4,0"
+                                        IsEnabled="False" Click="StageButton_Click"
+                                        ToolTip.Tip="Queue this rename for the next Apply"/>
+                                <Button Grid.Column="1" x:Name="RevertButton" Content="Revert Entry"
+                                        HorizontalAlignment="Stretch" Margin="4,0,0,0"
+                                        IsEnabled="False" Click="RevertButton_Click"
+                                        ToolTip.Tip="Put this entry back to what is on the card, dropping anything staged for it"/>
+                            </Grid>
+
+                            <TextBlock Classes="sectionHeader" Text="ON DISK" Margin="0,14,0,0"/>
+                            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" >
+                                <TextBlock Grid.Row="0" Grid.Column="0" Classes="muted" Text="Folder" Margin="0,0,10,0"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" x:Name="FolderNameText" TextWrapping="Wrap"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Classes="muted" Text="Sheet" Margin="0,0,10,0"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="SheetNameText" TextWrapping="Wrap"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Classes="muted" Text="Format" Margin="0,0,10,0"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" x:Name="FormatText"/>
+                            </Grid>
+
+                            <TextBlock x:Name="TracksHeader" Classes="sectionHeader" Text="TRACKS" Margin="0,14,0,0"/>
+                            <ItemsControl x:Name="TrackList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,2">
+                                            <Border Grid.Column="0" Width="24" Height="18" CornerRadius="3"
+                                                    Background="#E4E8EE" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Number}" FontSize="10"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <TextBlock Grid.Column="1" Text="{Binding FileName}" Margin="8,0"
+                                                       FontSize="12" TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center"
+                                                       ToolTip.Tip="{Binding FileName}"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Size}" Classes="muted"
+                                                       FontSize="11" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock x:Name="IssuesHeader" Classes="sectionHeader" Text="NEEDS ATTENTION"
+                                       Margin="0,14,0,0" IsVisible="False"/>
+                            <ItemsControl x:Name="IssueList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="White" CornerRadius="4" Padding="8,6" Margin="0,3"
+                                                BorderBrush="{StaticResource HairLine}" BorderThickness="1">
+                                            <StackPanel Spacing="5">
+                                                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="12"/>
+                                                <Button Content="Repair This"
+                                                        HorizontalAlignment="Left"
+                                                        IsVisible="{Binding CanAutoFix}"
+                                                        Tag="{Binding}"
+                                                        Click="RepairIssue_Click"
+                                                        ToolTip.Tip="Queue a repair for the next Apply"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+    </DockPanel>
+</Window>

@@ -1,0 +1,93 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="xStationMenuRefiner.App.App"
+             Name="xStation Menu Refiner"
+             RequestedThemeVariant="Light">
+
+    <!-- Replaces Avalonia's built-in "About Avalonia" entry in the macOS app menu. -->
+    <NativeMenu.Menu>
+        <NativeMenu>
+            <NativeMenuItem Header="About xStation Menu Refiner" Click="AboutMenuItem_Click"/>
+        </NativeMenu>
+    </NativeMenu.Menu>
+
+    <Application.Resources>
+        <!-- Taken from the PlayStation logo the app icon is built from. -->
+        <Color x:Key="SystemAccentColor">#326DB3</Color>
+        <Color x:Key="SystemAccentColorLight1">#4483C7</Color>
+        <Color x:Key="SystemAccentColorLight2">#679CD4</Color>
+        <Color x:Key="SystemAccentColorLight3">#93B9E2</Color>
+        <Color x:Key="SystemAccentColorDark1">#27548A</Color>
+        <Color x:Key="SystemAccentColorDark2">#1B3C63</Color>
+        <Color x:Key="SystemAccentColorDark3">#10243B</Color>
+
+        <SolidColorBrush x:Key="SelectionHighlight" Color="{StaticResource SystemAccentColorLight3}"/>
+
+        <SolidColorBrush x:Key="BrandBlue">#326DB3</SolidColorBrush>
+        <SolidColorBrush x:Key="StagedGreen">#1E9E5A</SolidColorBrush>
+        <SolidColorBrush x:Key="BrandRed">#DE0029</SolidColorBrush>
+        <SolidColorBrush x:Key="BrandAmber">#D9A400</SolidColorBrush>
+        <SolidColorBrush x:Key="BrandTeal">#00AA9E</SolidColorBrush>
+        <SolidColorBrush x:Key="MutedText">#6B7280</SolidColorBrush>
+        <SolidColorBrush x:Key="PanelBackground">#F6F7F9</SolidColorBrush>
+        <SolidColorBrush x:Key="HairLine">#E2E5EA</SolidColorBrush>
+
+        <StreamGeometry x:Key="FolderGlyph">M2,3.5 L7.2,3.5 L9,5.5 L18,5.5 A1.5,1.5 0 0 1 19.5,7 L19.5,16 A1.5,1.5 0 0 1 18,17.5 L2,17.5 A1.5,1.5 0 0 1 0.5,16 L0.5,5 A1.5,1.5 0 0 1 2,3.5 Z</StreamGeometry>
+        <StreamGeometry x:Key="DiscGlyph">M10,1.5 A8.5,8.5 0 1 0 10,18.5 A8.5,8.5 0 1 0 10,1.5 Z M10,8 A2,2 0 1 0 10,12 A2,2 0 1 0 10,8 Z</StreamGeometry>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+
+        <!-- 32 is the height Fluent gives a text box and a dropdown. -->
+        <Style Selector="Button">
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="MinWidth" Value="96"/>
+            <Setter Property="Padding" Value="12,4"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="TextBlock.muted">
+            <Setter Property="Foreground" Value="{StaticResource MutedText}"/>
+        </Style>
+
+        <!-- Fluent highlights selected text with the accent itself, which buries the
+             near black text. The light tint keeps it readable. -->
+        <Style Selector="TextBox">
+            <Setter Property="SelectionBrush" Value="{StaticResource SelectionHighlight}"/>
+        </Style>
+
+        <!-- Scrollbars keep their full width at all times. The Fluent default starts thin
+             and widens on hover, which reflows the content under the pointer. -->
+        <Style Selector="ScrollViewer">
+            <Setter Property="AllowAutoHide" Value="False"/>
+        </Style>
+
+        <Style Selector="ScrollBar">
+            <Setter Property="AllowAutoHide" Value="False"/>
+        </Style>
+
+        <Style Selector="TextBlock.sectionHeader">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{StaticResource MutedText}"/>
+        </Style>
+
+        <!-- Tighter rows than the Fluent default. -->
+        <Style Selector="TreeViewItem">
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Padding" Value="2,0"/>
+        </Style>
+
+        <Style Selector="TreeViewItem /template/ Border#PART_LayoutRoot">
+            <Setter Property="MinHeight" Value="0"/>
+        </Style>
+
+        <!-- Fluent holds 36 pixels open for the chevron on every row, drawn or not. -->
+        <Style Selector="TreeView.flat TreeViewItem /template/ Panel#PART_ExpandCollapseChevronContainer">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+    </Application.Styles>
+
+</Application>

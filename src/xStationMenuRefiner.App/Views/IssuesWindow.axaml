@@ -1,0 +1,71 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="xStationMenuRefiner.App.Views.IssuesWindow"
+        Title="Needs Attention" Width="820" Height="620"
+        MinWidth="640" MinHeight="420"
+        WindowStartupLocation="CenterOwner"
+        Icon="avares://xStationMenuRefiner/Assets/xstation_icon.ico">
+
+    <DockPanel LastChildFill="True">
+
+        <Border DockPanel.Dock="Top" Background="{StaticResource PanelBackground}"
+                BorderBrush="{StaticResource HairLine}" BorderThickness="0,0,0,1" Padding="14,10">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="2">
+                    <TextBlock x:Name="HeaderText" FontWeight="SemiBold" FontSize="14"/>
+                    <TextBlock x:Name="SubHeaderText" Classes="muted" FontSize="12"/>
+                </StackPanel>
+                <CheckBox Grid.Column="1" x:Name="ErrorsOnly" Content="Errors Only"
+                          VerticalAlignment="Center" IsCheckedChanged="ErrorsOnly_Changed"
+                          ToolTip.Tip="Hide warnings and show only what will break the menu"/>
+            </Grid>
+        </Border>
+
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource PanelBackground}"
+                BorderBrush="{StaticResource HairLine}" BorderThickness="0,1,0,0" Padding="14,10">
+            <Button Content="Close" HorizontalAlignment="Right" Click="CloseButton_Click"
+                    ToolTip.Tip="Close this dialog"/>
+        </Border>
+
+        <ScrollViewer AllowAutoHide="False" HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl x:Name="GroupList" Margin="12">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0,0,0,14">
+                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                            <ItemsControl ItemsSource="{Binding Items}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Margin="0,0,0,5" Padding="10,7" CornerRadius="5"
+                                                BorderBrush="{StaticResource HairLine}" BorderThickness="1"
+                                                Background="White">
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <Ellipse Grid.Column="0" Width="8" Height="8" Margin="0,0,10,0"
+                                                         VerticalAlignment="Center"
+                                                         Fill="{StaticResource BrandRed}"
+                                                         IsVisible="{Binding IsError}"/>
+                                                <Ellipse Grid.Column="0" Width="8" Height="8" Margin="0,0,10,0"
+                                                         VerticalAlignment="Center"
+                                                         Fill="{StaticResource BrandAmber}"
+                                                         IsVisible="{Binding IsWarning}"/>
+                                                <StackPanel Grid.Column="1" Spacing="2">
+                                                    <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="12"/>
+                                                    <TextBlock Text="{Binding Path}" Classes="muted" FontSize="11"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                </StackPanel>
+                                                <Button Grid.Column="2" Content="Show"
+                                                        VerticalAlignment="Center" Margin="10,0,0,0"
+                                                        Tag="{Binding}" Click="Show_Click"
+                                                        ToolTip.Tip="Select this entry in the main list"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

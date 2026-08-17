@@ -1,0 +1,31 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="xStationMenuRefiner.App.Views.FolderPickerWindow"
+        Title="Move To" Width="520" Height="440"
+        WindowStartupLocation="CenterOwner"
+        Icon="avares://xStationMenuRefiner/Assets/xstation_icon.ico">
+    <DockPanel Margin="16,14">
+        <TextBlock DockPanel.Dock="Top" x:Name="PromptText" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+        <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
+            <Button Grid.Column="1" Content="Cancel" Margin="0,0,8,0" Click="CancelButton_Click"
+                    ToolTip.Tip="Close without staging anything"/>
+            <Button Grid.Column="2" x:Name="MoveButton" Content="Move" IsEnabled="False"
+                    Click="MoveButton_Click"
+                    ToolTip.Tip="Stage the move. Nothing moves on the card until Apply Changes"/>
+        </Grid>
+
+        <TextBlock DockPanel.Dock="Bottom" x:Name="EmptyText" Classes="muted" TextWrapping="Wrap"
+                   IsVisible="False" Margin="0,10,0,0"
+                   Text="There is nowhere else on this card that this can go."/>
+
+        <ListBox x:Name="FolderList" SelectionChanged="FolderList_SelectionChanged"
+                 DoubleTapped="FolderList_DoubleTapped">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Display}" Padding="2"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</Window>

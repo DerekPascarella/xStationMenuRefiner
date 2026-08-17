@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="xStationMenuRefiner.App.Views.TextPromptWindow"
+        Title="" Width="440" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Icon="avares://xStationMenuRefiner/Assets/xstation_icon.ico">
+    <StackPanel Margin="16,14" Spacing="9">
+        <TextBlock x:Name="PromptText" TextWrapping="Wrap"/>
+        <TextBox x:Name="Entry" KeyDown="Entry_KeyDown"/>
+        <TextBlock x:Name="ErrorText" Foreground="#C0392B" FontSize="12"
+                   TextWrapping="Wrap" IsVisible="False"/>
+        <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,4,0,0">
+            <Button Grid.Column="1" Content="Cancel" Margin="0,0,8,0" Click="CancelButton_Click"
+                    ToolTip.Tip="Close without making changes"/>
+            <Button Grid.Column="2" Content="OK" Click="OkButton_Click"
+                    ToolTip.Tip="Accept this name"/>
+        </Grid>
+    </StackPanel>
+</Window>
